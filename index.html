@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>My experiment</title>
+  <script src="https://unpkg.com/jspsych@8.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-likert@2.0.0"></script>
+  <!-- load in the vignette js-->
+  <script src="stimuli/stimuli_vignette.js"></script>
+  <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body></body>
+<script>
+
+  /* initialize jsPsych */
+  var jsPsych = initJsPsych({
+  on_finish: function() {
+    jsPsych.data.displayData();
+  }
+});
+
+  /* create timeline */
+  var timeline = [];
+
+  /* load in stimulus list */
+  // IDEA: store the vignette text as a variable in .js code (loaded above)
+  // each element in the variable VIGNETTES is one of the two prompts, structured as html
+  // you can view the structure by looking in the console
+  console.log(VIGNETTES)
+  
+  //let's store one of these elements
+  stimulus_item = VIGNETTES[0]
+  console.log(stimulus_item)
+  // MAIN TO DO: How can we systematically assign participants to one of the vignettes/ conditions?
+
+  //define likert scale labels for each question
+  //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
+  var speed_likert = [
+    "very slowly",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "very quickly"
+  ]
+
+  // here's how we can show a given vignette trial
+  // TO DO: what else do we need to add to the trial procedure? What other information should we store? How can we turn this into a complete experiment timeline?
+  var trial_scenario = {
+        type: jsPsychHtmlButtonResponse,
+        //add the vignette as text at the top 
+        //(could also present the vignette integrated with the questions - what are the pros and cons of doing so?)
+        stimulus: stimulus_item['text'],
+        choices: ["Continue"],
+        // store elements from the stimulus item
+        data: { 
+          item_type: stimulus_item['item_type']
+        }
+      }
+  timeline.push(trial_scenario);
+
+  //first add manipulation check questions
+  var trial_manipulation_check_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+      {prompt: "<p>On a scale from 1-7, how quickly did Justin make his decision?</p>",required: true,labels:speed_likert,name: "justin_manipulation_check"},
+      {prompt: "<p>On a scale from 1-7, how quickly did Nate make his decision?</p>",required: true,labels:speed_likert, name: "nate_manipulation_check"},
+    ],
+    // randomize the order of these questions
+    randomize_question_order: true,
+    scale_width: 400
+  }
+
+  timeline.push(trial_manipulation_check_questions);
+
+  /* start the experiment */
+  jsPsych.run(timeline);
+
+</script>
+
+</html>
