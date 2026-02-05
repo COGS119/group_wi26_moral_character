@@ -1,85 +1,188 @@
 <!DOCTYPE html>
 <html>
 
+
 <head>
-  <title>My experiment</title>
-  <script src="https://unpkg.com/jspsych@8.0.0"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.0.0"></script>
-  <script src="https://unpkg.com/@jspsych/plugin-survey-likert@2.0.0"></script>
-  <!-- load in the vignette js-->
-  <script src="stimuli/stimuli_vignette.js"></script>
-  <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+ <title>My experiment</title>
+ <script src="https://unpkg.com/jspsych@8.0.0"></script>
+ <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
+ <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.0.0"></script>
+ <script src="https://unpkg.com/@jspsych/plugin-survey-likert@2.0.0"></script>
+<script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
+ <script src="stimuli/stimuli_vignette.js"></script>
+ <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
+
+
+ <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
 </head>
+
 
 <body></body>
 <script>
 
-  /* initialize jsPsych */
-  var jsPsych = initJsPsych({
-  on_finish: function() {
-    jsPsych.data.displayData();
-  }
+
+ /* initialize jsPsych */
+ var jsPsych = initJsPsych({
+ on_finish: function() {
+   jsPsych.data.displayData();
+ }
 });
 
-  /* create timeline */
-  var timeline = [];
 
-  /* load in stimulus list */
-  // IDEA: store the vignette text as a variable in .js code (loaded above)
-  // each element in the variable VIGNETTES is one of the two prompts, structured as html
-  // you can view the structure by looking in the console
-  console.log(VIGNETTES)
-  
-  //let's store one of these elements
-  stimulus_item = VIGNETTES[0]
-  console.log(stimulus_item)
-  // MAIN TO DO: How can we systematically assign participants to one of the vignettes/ conditions?
+ /* create timeline */
+ var timeline = [];
 
-  //define likert scale labels for each question
-  //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
-  var speed_likert = [
-    "very slowly",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "very quickly"
-  ]
 
-  // here's how we can show a given vignette trial
-  // TO DO: what else do we need to add to the trial procedure? What other information should we store? How can we turn this into a complete experiment timeline?
-  var trial_scenario = {
+var welcome = {
+   type: jsPsychHtmlKeyboardResponse,
+   stimulus: "Welcome to the experiment. Press any key to begin."
+ };
+
+
+ timeline.push(welcome);
+
+
+var participant_id_entry = {
+  type: jsPsychSurveyText,
+  questions: [{ prompt: "Please enter your PID (e.g. p1):", name: "participant_id" }],
+  on_finish: function (data) {
+    console.log(data.response)
+    jsPsych.data.addProperties({
+      participant: data.response.participant_id
+    });
+  }
+};
+
+
+timeline.push(participant_id_entry);
+
+var participant_age_entry = {
+ type: jsPsychSurveyText,
+ questions: [{ prompt: "Please enter your age:", name: "participant_age" }],
+ on_finish: function (data) {
+   console.log(data.response)
+   jsPsych.data.addProperties({
+     age: data.response.participant_age
+   });
+ }
+};
+
+timeline.push(participant_age_entry);
+
+ var instructions = {
+   type: jsPsychHtmlKeyboardResponse,
+   stimulus: `
+   <p>In this experiment, you will first be presented with 2 paragraphs.</p><p>Please read through these carefully and to the best of your ability.</p>
+   <p>You will answer a series of questions afterwards.</p>
+   <p>Press any key to begin.</p>
+ `
+ };
+
+
+ timeline.push(instructions);
+
+
+ /* load in stimulus list */
+ // IDEA: store the vignette text as a variable in .js code (loaded above)
+ // each element in the variable VIGNETTES is one of the two prompts, structured as html
+ // you can view the structure by looking in the console
+ console.log(VIGNETTES)
+
+ //let's store one of these elements
+ moral_stimulus = VIGNETTES[0]
+ immoral_stimulus = VIGNETTES[1]
+ console.log(moral_stimulus)
+ console.log(immoral_stimulus)
+ // MAIN TO DO: How can we systematically assign participants to one of the vignettes/ conditions?
+
+ //define likert scale labels for each question
+ //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
+ var speed_likert = [
+   "very slowly",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "very quickly"
+ ]
+var conditions = ["moral", "immoral"]
+ var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
+ console.log(condition_assignment);
+
+ jsPsych.data.addProperties({
+   condition: condition_assignment
+ });
+
+ if (condition_assignment == "moral") {
+   var moral_scenario = {
         type: jsPsychHtmlButtonResponse,
-        //add the vignette as text at the top 
-        //(could also present the vignette integrated with the questions - what are the pros and cons of doing so?)
-        stimulus: stimulus_item['text'],
+        stimulus: moral_stimulus['text'],
         choices: ["Continue"],
         // store elements from the stimulus item
         data: { 
-          item_type: stimulus_item['item_type']
+          item_type: moral_stimulus['item_type'],
+          condition: moral_stimulus['condition']
         }
       }
-  timeline.push(trial_scenario);
+  timeline.push(moral_scenario);
+ } else {
+    var immoral_scenario = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: immoral_stimulus['text'],
+        choices: ["Continue"],
+        // store elements from the stimulus item
+        data: { 
+          item_type: immoral_stimulus['item_type'],
+          condition: immoral_stimulus['condition']
+        }
+      }
+  timeline.push(immoral_scenario);
+ }
+ 
+ //first add manipulation check questions
+ var trial_manipulation_check_questions = {
+   type: jsPsychSurveyLikert,
+   questions: [
+     {prompt: "<p>On a scale from 1-7, how quickly did Justin make his decision?</p>",required: true,labels:speed_likert,name: "justin_manipulation_check"},
+     {prompt: "<p>On a scale from 1-7, how quickly did Nate make his decision?</p>",required: true,labels:speed_likert, name: "nate_manipulation_check"},
+   ],
+   // randomize the order of these questions
+   randomize_question_order: true,
+   scale_width: 400
+ }
 
-  //first add manipulation check questions
-  var trial_manipulation_check_questions = {
-    type: jsPsychSurveyLikert,
-    questions: [
-      {prompt: "<p>On a scale from 1-7, how quickly did Justin make his decision?</p>",required: true,labels:speed_likert,name: "justin_manipulation_check"},
-      {prompt: "<p>On a scale from 1-7, how quickly did Nate make his decision?</p>",required: true,labels:speed_likert, name: "nate_manipulation_check"},
-    ],
-    // randomize the order of these questions
-    randomize_question_order: true,
-    scale_width: 400
-  }
 
-  timeline.push(trial_manipulation_check_questions);
+ timeline.push(trial_manipulation_check_questions);
 
-  /* start the experiment */
-  jsPsych.run(timeline);
+
+ /* start the experiment */
+
+
+// asking moral character evaluation questions
+// NEED TO CHANGE LIKERT SCALES
+
+var moral_evaluation_questions = {
+   type: jsPsychSurveyLikert,
+   questions: [
+     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:speed_likert, name: "justin_principles_eval"},
+     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:speed_likert, name: "nate_principles_eval"}, 
+     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>",required: true,labels:speed_likert,name: "justin_standards_eval"}, 
+     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>",required: true,labels:speed_likert,name: "nate_standards_eval"}, 
+     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Justin has the moral principles and knowledge to do the right thing. </p>",required: true,labels:speed_likert,name: "justin_deepness_eval"}, 
+     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Nate has the moral principles and knowledge to do the right thing. </p>",required: true,labels:speed_likert,name: "nate_deepness_eval"}
+   ],
+   // randomize the order of these questions
+   randomize_question_order: true,
+   scale_width: 400
+ }
+
+ timeline.push(moral_evaluation_questions);
+
+ jsPsych.run(timeline);
+
 
 </script>
+
 
 </html>
