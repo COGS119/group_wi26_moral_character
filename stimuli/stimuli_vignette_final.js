@@ -1,0 +1,4 @@
+const VIGNETTES = [
+{item_type: "moral", text:" <p> Justin saw his decision as an easy one and was <i> able to decide quickly. He did not steal the money </i> and instead left the wallet with Customer Service.</p><p> In contrast, Nate saw his decision as difficult and <i> was only able to decide after long and careful deliberation</i>. After several minutes of thinking in his car, <i> he too decided not to steal the money </i> and instead left the wallet with customer service. </i><br> </p>"},
+{item_type: "immoral", text: " <p> Justin saw his decision as an easy one and was <i> able to decide quickly. He pocketed the money and drove off. </i></p><p> In contrast, Nate saw his decision as difficult and <i> was only able to decide after long and careful deliberation</i>. After several minutes of thinking in his car, <i> he too decided to pocket the money and drive off.</i></p>"}
+]
