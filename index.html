@@ -9,7 +9,7 @@
  <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.0.0"></script>
  <script src="https://unpkg.com/@jspsych/plugin-survey-likert@2.0.0"></script>
 <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
- <script src="stimuli/stimuli_vignette.js"></script>
+ <script src="stimuli/stimuli_vignette_final.js"></script>
  <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
 
 
@@ -72,7 +72,7 @@ timeline.push(participant_age_entry);
  var instructions = {
    type: jsPsychHtmlKeyboardResponse,
    stimulus: `
-   <p>In this experiment, you will first be presented with 2 paragraphs.</p><p>Please read through these carefully and to the best of your ability.</p>
+   <p>In this experiment, you will first be presented with 2 paragraphs.</p><p>Please read through these carefully.</p>
    <p>You will answer a series of questions afterwards.</p>
    <p>Press any key to begin.</p>
  `
@@ -81,6 +81,12 @@ timeline.push(participant_age_entry);
 
  timeline.push(instructions);
 
+ var scenario = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: "<p>Justin and Nate were walking to separate cars in the parking lot of Andronico's, a local grocery store, where they each spotted a different lost wallet next to the cars.</p><p> Upon picking up the wallet and looking inside, each found several hundred dollars in cash. Each man considered whether he should return the wallet and money to the Customer Service desk at Andronico's, or pocket the money and drive away.</p>",
+  choices: ["Continue"]
+}
+timeline.push(scenario)
 
  /* load in stimulus list */
  // IDEA: store the vignette text as a variable in .js code (loaded above)
@@ -106,6 +112,27 @@ timeline.push(participant_age_entry);
    "",
    "very quickly"
  ]
+
+ var moral_likert = [
+   "entirely bad",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "entirely good"
+ ]
+
+var deep_likert = [
+   "surface level",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "deep within"
+ ]
+ 
 var conditions = ["moral", "immoral"]
  var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
  console.log(condition_assignment);
@@ -162,22 +189,34 @@ var conditions = ["moral", "immoral"]
 // asking moral character evaluation questions
 // NEED TO CHANGE LIKERT SCALES
 
-var moral_evaluation_questions = {
+var moral_principle_questions = {
    type: jsPsychSurveyLikert,
    questions: [
-     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:speed_likert, name: "justin_principles_eval"},
-     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:speed_likert, name: "nate_principles_eval"}, 
-     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>",required: true,labels:speed_likert,name: "justin_standards_eval"}, 
-     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>",required: true,labels:speed_likert,name: "nate_standards_eval"}, 
-     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Justin has the moral principles and knowledge to do the right thing. </p>",required: true,labels:speed_likert,name: "justin_deepness_eval"}, 
-     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Nate has the moral principles and knowledge to do the right thing. </p>",required: true,labels:speed_likert,name: "nate_deepness_eval"}
-   ],
-   // randomize the order of these questions
-   randomize_question_order: true,
+     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:moral_likert, name: "justin_principles_eval"},
+     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:moral_likert, name: "nate_principles_eval"}, ],
    scale_width: 400
  }
 
- timeline.push(moral_evaluation_questions);
+ var moral_standard_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+    {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>",required: true,labels:moral_likert,name: "justin_standards_eval"}, 
+     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>",required: true,labels:moral_likert,name: "nate_standards_eval"}, ],
+    scale_width: 400   
+ }
+
+ var depth_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Justin has the moral principles and knowledge to do the right thing. </p>",required: true,labels:deep_likert,name: "justin_deepness_eval"}, 
+     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Nate has the moral principles and knowledge to do the right thing. </p>",required: true,labels:deep_likert,name: "nate_deepness_eval"}
+   ],
+    scale_width: 400
+ }
+
+ timeline.push(moral_principle_questions);
+ timeline.push(moral_standard_questions);
+ timeline.push(depth_questions);
 
  jsPsych.run(timeline);
 
