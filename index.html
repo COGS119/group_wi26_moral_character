@@ -11,10 +11,23 @@
   <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
   <script src="stimuli/stimuli_vignette_final.js"></script>
   <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.2.1"></script>
   <!-- This is for data storage - please be sure to keep this script in all future updates to the code!! -->
   <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
 
   <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+
+  <style>
+.jspsych-content {
+    max-width: calc(100vw - 2in) !important; /* full width minus 1in on each side */
+    width: calc(100vw - 2in) !important;
+    margin-left: 1in !important;
+    margin-right: 1in !important;
+    line-height: 1.6;
+    font-size: 20px;
+}
+</style>
+
 </head>
 
 
@@ -46,12 +59,16 @@
   });
   //PLEASE KEEP FOR ALL FUTURE ITERATIONS
 
+ var enter_fullscreen = {
+  type: jsPsychFullscreen,
+  fullscreen_mode: true
+}
+timeline.push(enter_fullscreen);
 
   var welcome = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: "Welcome to the experiment. Press any key to begin."
   };
-
 
   timeline.push(welcome);
 
