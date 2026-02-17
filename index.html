@@ -109,11 +109,21 @@
   console.log(VIGNETTES)
 
   //let's store one of these elements
-  moral_stimulus = VIGNETTES[0]
-  immoral_stimulus = VIGNETTES[1]
-  console.log(moral_stimulus)
-  console.log(immoral_stimulus)
-  // MAIN TO DO: How can we systematically assign participants to one of the vignettes/ conditions?
+  moral_stimulus_1 = VIGNETTES[0]
+  moral_stimulus_2 = VIGNETTES[1]
+  immoral_stimulus_1 = VIGNETTES[2]
+  immoral_stimulus_2 = VIGNETTES[3]
+  console.log(moral_stimulus_1)
+  console.log(moral_stimulus_2)
+  console.log(immoral_stimulus_1)
+  console.log(immoral_stimulus_2)
+
+var moral_stimuli = [moral_stimulus_1, moral_stimulus_2]; //assign the two moral stimuli to a variable
+var immoral_stimuli = [immoral_stimulus_1, immoral_stimulus_2]; //assign the two immoral stimuli to a variable
+
+var moral_stimulus = jsPsych.randomization.sampleWithoutReplacement(moral_stimuli, 1)[0]
+var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_stimuli, 1)[0]
+//randomize the paragraph order in each condition, so that some participants see moral_stimulus_1 and others see moral_stimulus_2 (same for immoral stimuli)
 
   //define likert scale labels for each question
   //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
