@@ -3,17 +3,18 @@
 
 
 <head>
- <title>My experiment</title>
- <script src="https://unpkg.com/jspsych@8.0.0"></script>
- <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
- <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.0.0"></script>
- <script src="https://unpkg.com/@jspsych/plugin-survey-likert@2.0.0"></script>
-<script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
- <script src="stimuli/stimuli_vignette_final.js"></script>
- <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
+  <title>My experiment</title>
+  <script src="https://unpkg.com/jspsych@8.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-likert@2.0.0"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.0.0"></script>
+  <script src="stimuli/stimuli_vignette_final.js"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-survey-text@2.0.0"></script>
+  <!-- This is for data storage - please be sure to keep this script in all future updates to the code!! -->
+  <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script>
 
-
- <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+  <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
 </head>
 
 
@@ -21,204 +22,229 @@
 <script>
 
 
- /* initialize jsPsych */
- var jsPsych = initJsPsych({
- on_finish: function() {
-   jsPsych.data.displayData();
- }
-});
+  /* initialize jsPsych */
+  var jsPsych = initJsPsych({
+    on_finish: function () {
+      jsPsych.data.displayData();
+    }
+  });
 
 
- /* create timeline */
- var timeline = [];
+  /* create timeline */
+  var timeline = [];
+
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+  //create a unique filename by combining a random string and a millisecond counter (to avoid duplicates)
+  var random_id = jsPsych.randomization.randomID(10);
+  const date = new Date();
+  random_id = "p" + random_id.toString();
+  var file_id = random_id + "_" + date.getTime().toString();
+  const filename = `${file_id}.csv`;
+  //also store the random id for convenience
+  jsPsych.data.addProperties({
+    random_id: random_id,
+  });
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
 
 
-var welcome = {
-   type: jsPsychHtmlKeyboardResponse,
-   stimulus: "Welcome to the experiment. Press any key to begin."
- };
+  var welcome = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "Welcome to the experiment. Press any key to begin."
+  };
 
 
- timeline.push(welcome);
+  timeline.push(welcome);
 
 
-var participant_id_entry = {
-  type: jsPsychSurveyText,
-  questions: [{ prompt: "Please enter your PID (e.g. p1):", name: "participant_id" }],
-  on_finish: function (data) {
-    console.log(data.response)
-    jsPsych.data.addProperties({
-      participant: data.response.participant_id
-    });
-  }
-};
+  var participant_id_entry = {
+    type: jsPsychSurveyText,
+    questions: [{ prompt: "Please enter your PID (e.g. p1):", name: "participant_id" }],
+    on_finish: function (data) {
+      console.log(data.response)
+      jsPsych.data.addProperties({
+        participant: data.response.participant_id
+      });
+    }
+  };
 
 
-timeline.push(participant_id_entry);
+  timeline.push(participant_id_entry);
 
-var participant_age_entry = {
- type: jsPsychSurveyText,
- questions: [{ prompt: "Please enter your age:", name: "participant_age" }],
- on_finish: function (data) {
-   console.log(data.response)
-   jsPsych.data.addProperties({
-     age: data.response.participant_age
-   });
- }
-};
+  var participant_age_entry = {
+    type: jsPsychSurveyText,
+    questions: [{ prompt: "Please enter your age:", name: "participant_age" }],
+    on_finish: function (data) {
+      console.log(data.response)
+      jsPsych.data.addProperties({
+        age: data.response.participant_age
+      });
+    }
+  };
 
-timeline.push(participant_age_entry);
+  timeline.push(participant_age_entry);
 
- var instructions = {
-   type: jsPsychHtmlKeyboardResponse,
-   stimulus: `
+  var instructions = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
    <p>In this experiment, you will first be presented with 2 paragraphs.</p><p>Please read through these carefully.</p>
    <p>You will answer a series of questions afterwards.</p>
    <p>Press any key to begin.</p>
  `
- };
+  };
 
 
- timeline.push(instructions);
+  timeline.push(instructions);
 
- var scenario = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: "<p>Justin and Nate were walking to separate cars in the parking lot of Andronico's, a local grocery store, where they each spotted a different lost wallet next to the cars.</p><p> Upon picking up the wallet and looking inside, each found several hundred dollars in cash. Each man considered whether he should return the wallet and money to the Customer Service desk at Andronico's, or pocket the money and drive away.</p>",
-  choices: ["Continue"]
-}
-timeline.push(scenario)
+  var scenario = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "<p>Justin and Nate were walking to separate cars in the parking lot of Andronico's, a local grocery store, where they each spotted a different lost wallet next to the cars.</p><p> Upon picking up the wallet and looking inside, each found several hundred dollars in cash. Each man considered whether he should return the wallet and money to the Customer Service desk at Andronico's, or pocket the money and drive away.</p>",
+    choices: ["Continue"]
+  }
+  timeline.push(scenario)
 
- /* load in stimulus list */
- // IDEA: store the vignette text as a variable in .js code (loaded above)
- // each element in the variable VIGNETTES is one of the two prompts, structured as html
- // you can view the structure by looking in the console
- console.log(VIGNETTES)
+  /* load in stimulus list */
+  // IDEA: store the vignette text as a variable in .js code (loaded above)
+  // each element in the variable VIGNETTES is one of the two prompts, structured as html
+  // you can view the structure by looking in the console
+  console.log(VIGNETTES)
 
- //let's store one of these elements
- moral_stimulus = VIGNETTES[0]
- immoral_stimulus = VIGNETTES[1]
- console.log(moral_stimulus)
- console.log(immoral_stimulus)
- // MAIN TO DO: How can we systematically assign participants to one of the vignettes/ conditions?
+  //let's store one of these elements
+  moral_stimulus = VIGNETTES[0]
+  immoral_stimulus = VIGNETTES[1]
+  console.log(moral_stimulus)
+  console.log(immoral_stimulus)
+  // MAIN TO DO: How can we systematically assign participants to one of the vignettes/ conditions?
 
- //define likert scale labels for each question
- //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
- var speed_likert = [
-   "very slowly",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "very quickly"
- ]
+  //define likert scale labels for each question
+  //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
+  var speed_likert = [
+    "very slowly",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "very quickly"
+  ]
 
- var moral_likert = [
-   "entirely bad",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "entirely good"
- ]
+  var moral_likert = [
+    "entirely bad",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "entirely good"
+  ]
 
-var deep_likert = [
-   "surface level",
-   "",
-   "",
-   "",
-   "",
-   "",
-   "deep within"
- ]
- 
-var conditions = ["moral", "immoral"]
- var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
- console.log(condition_assignment);
+  var deep_likert = [
+    "surface level",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "deep within"
+  ]
 
- jsPsych.data.addProperties({
-   condition: condition_assignment
- });
+  var conditions = ["moral", "immoral"]
+  var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
+  console.log(condition_assignment);
 
- if (condition_assignment == "moral") {
-   var moral_scenario = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: moral_stimulus['text'],
-        choices: ["Continue"],
-        // store elements from the stimulus item
-        data: { 
-          item_type: moral_stimulus['item_type'],
-          condition: moral_stimulus['condition']
-        }
+  jsPsych.data.addProperties({
+    condition: condition_assignment
+  });
+
+  if (condition_assignment == "moral") {
+    var moral_scenario = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: moral_stimulus['text'],
+      choices: ["Continue"],
+      // store elements from the stimulus item
+      data: {
+        item_type: moral_stimulus['item_type'],
+        condition: moral_stimulus['condition']
       }
-  timeline.push(moral_scenario);
- } else {
+    }
+    timeline.push(moral_scenario);
+  } else {
     var immoral_scenario = {
-        type: jsPsychHtmlButtonResponse,
-        stimulus: immoral_stimulus['text'],
-        choices: ["Continue"],
-        // store elements from the stimulus item
-        data: { 
-          item_type: immoral_stimulus['item_type'],
-          condition: immoral_stimulus['condition']
-        }
+      type: jsPsychHtmlButtonResponse,
+      stimulus: immoral_stimulus['text'],
+      choices: ["Continue"],
+      // store elements from the stimulus item
+      data: {
+        item_type: immoral_stimulus['item_type'],
+        condition: immoral_stimulus['condition']
       }
-  timeline.push(immoral_scenario);
- }
- 
- //first add manipulation check questions
- var trial_manipulation_check_questions = {
-   type: jsPsychSurveyLikert,
-   questions: [
-     {prompt: "<p>On a scale from 1-7, how quickly did Justin make his decision?</p>",required: true,labels:speed_likert,name: "justin_manipulation_check"},
-     {prompt: "<p>On a scale from 1-7, how quickly did Nate make his decision?</p>",required: true,labels:speed_likert, name: "nate_manipulation_check"},
-   ],
-   // randomize the order of these questions
-   randomize_question_order: true,
-   scale_width: 400
- }
+    }
+    timeline.push(immoral_scenario);
+  }
 
-
- timeline.push(trial_manipulation_check_questions);
-
-
- /* start the experiment */
-
-
-// asking moral character evaluation questions
-// NEED TO CHANGE LIKERT SCALES
-
-var moral_principle_questions = {
-   type: jsPsychSurveyLikert,
-   questions: [
-     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:moral_likert, name: "justin_principles_eval"},
-     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>",required: true,labels:moral_likert, name: "nate_principles_eval"}, ],
-   scale_width: 400
- }
-
- var moral_standard_questions = {
+  //first add manipulation check questions
+  var trial_manipulation_check_questions = {
     type: jsPsychSurveyLikert,
     questions: [
-    {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>",required: true,labels:moral_likert,name: "justin_standards_eval"}, 
-     {prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>",required: true,labels:moral_likert,name: "nate_standards_eval"}, ],
-    scale_width: 400   
- }
-
- var depth_questions = {
-    type: jsPsychSurveyLikert,
-    questions: [
-     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Justin has the moral principles and knowledge to do the right thing. </p>",required: true,labels:deep_likert,name: "justin_deepness_eval"}, 
-     {prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Nate has the moral principles and knowledge to do the right thing. </p>",required: true,labels:deep_likert,name: "nate_deepness_eval"}
-   ],
+      { prompt: "<p>On a scale from 1-7, how quickly did Justin make his decision?</p>", required: true, labels: speed_likert, name: "justin_manipulation_check" },
+      { prompt: "<p>On a scale from 1-7, how quickly did Nate make his decision?</p>", required: true, labels: speed_likert, name: "nate_manipulation_check" },
+    ],
+    // randomize the order of these questions
+    randomize_question_order: true,
     scale_width: 400
- }
+  }
 
- timeline.push(moral_principle_questions);
- timeline.push(moral_standard_questions);
- timeline.push(depth_questions);
 
- jsPsych.run(timeline);
+  timeline.push(trial_manipulation_check_questions);
+
+
+  /* start the experiment */
+
+
+  // asking moral character evaluation questions
+  // NEED TO CHANGE LIKERT SCALES
+
+  var moral_principle_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "justin_principles_eval" },
+      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "nate_principles_eval" },],
+    scale_width: 400
+  }
+
+  var moral_standard_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "justin_standards_eval" },
+      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>", required: true, labels: moral_likert, name: "nate_standards_eval" },],
+    scale_width: 400
+  }
+
+  var depth_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+      { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Justin has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "justin_deepness_eval" },
+      { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Nate has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "nate_deepness_eval" }
+    ],
+    scale_width: 400
+  }
+
+  timeline.push(moral_principle_questions);
+  timeline.push(moral_standard_questions);
+  timeline.push(depth_questions);
+
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+  //this portion of the code ensures that the data gets sent to be stored on OSF
+  const save_data = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: "BM35gLrCjbEH",
+    filename: filename,
+    data_string: () => jsPsych.data.get().csv()
+  };
+  timeline.push(save_data);
+  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+
+  jsPsych.run(timeline);
 
 
 </script>
