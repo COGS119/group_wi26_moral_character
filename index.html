@@ -246,11 +246,11 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
     
   }
 
-var survey_blocks = [moral_principle_questions, moral_standard_questions, depth_questions];
+var survey_blocks = [moral_principle_questions, moral_standard_questions];
 var randomized_blocks = jsPsych.randomization.shuffle(survey_blocks);
-randomized_blocks.forEach(block => timeline.push(block)); //so for these question blocks (each pair of questions: principles, depth, standards), the order is randomized
+randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
 
-
+timeline.push(depth_questions); //we want the depth questions to be last, so we add them after randomizing the order of the principle and standard question blocks
 
 
 //demographic questions!
