@@ -75,7 +75,7 @@ timeline.push(enter_fullscreen);
 
   var participant_id_entry = {
     type: jsPsychSurveyText,
-    questions: [{ prompt: "Please enter your PID (e.g. p1):", name: "participant_id" }],
+    questions: [{ prompt: "Please enter your participant ID:", name: "participant_id" }],
     on_finish: function (data) {
       console.log(data.response)
       jsPsych.data.addProperties({
