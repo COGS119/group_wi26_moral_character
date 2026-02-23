@@ -103,7 +103,7 @@ timeline.push(enter_fullscreen);
   var instructions = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-   <p>In this experiment, you will first be presented with 2 paragraphs.</p><p>Please read through these carefully.</p>
+   <p>In this experiment, you will be presented with 2 paragraphs.</p><p>Please read through these carefully.</p>
    <p>You will answer a series of questions afterwards.</p>
    <p>Press any key to begin.</p>
  `
@@ -119,17 +119,14 @@ timeline.push(enter_fullscreen);
   }
   timeline.push(scenario)
 
-  /* load in stimulus list */
-  // IDEA: store the vignette text as a variable in .js code (loaded above)
-  // each element in the variable VIGNETTES is one of the two prompts, structured as html
-  // you can view the structure by looking in the console
+ 
   console.log(VIGNETTES)
 
   //let's store one of these elements
-  moral_stimulus_1 = VIGNETTES[0]
-  moral_stimulus_2 = VIGNETTES[1]
-  immoral_stimulus_1 = VIGNETTES[2]
-  immoral_stimulus_2 = VIGNETTES[3]
+  moral_stimulus_1 = VIGNETTES[0] //this paragraph talks about Justin (quick) and then Nate (slow
+  moral_stimulus_2 = VIGNETTES[1] //this paragraph about Nate (slow) and then Justin (quick)
+  immoral_stimulus_1 = VIGNETTES[2] //same for the immoral condition ^ We are counterbalancing the presentation order of the decision time
+  immoral_stimulus_2 = VIGNETTES[3] 
   console.log(moral_stimulus_1)
   console.log(moral_stimulus_2)
   console.log(immoral_stimulus_1)
@@ -141,6 +138,7 @@ var immoral_stimuli = [immoral_stimulus_1, immoral_stimulus_2]; //assign the two
 var moral_stimulus = jsPsych.randomization.sampleWithoutReplacement(moral_stimuli, 1)[0]
 var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_stimuli, 1)[0]
 //randomize the paragraph order in each condition, so that some participants see moral_stimulus_1 and others see moral_stimulus_2 (same for immoral stimuli)
+//counterbalances the presentation order for decision time
 
   //define likert scale labels for each question
   //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
@@ -176,16 +174,17 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
 
   var conditions = ["moral", "immoral"]
   var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
-  console.log(condition_assignment);
+  console.log(condition_assignment); //this randomly assigns participants to either the moral or immoral condition.
 
   jsPsych.data.addProperties({
     condition: condition_assignment
   });
 
+  //after assigning participants to a condition, we present them with the corresponding paragraph below.
   if (condition_assignment == "moral") {
     var moral_scenario = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: moral_stimulus['text'],
+      stimulus: moral_stimulus['text'], //they will either see moral_stimulus_1 or moral_stimulus_2, which differ in the presentation order of the decision time manipulation
       choices: ["Continue"],
       // store elements from the stimulus item
       data: {
@@ -215,7 +214,7 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
       { prompt: "<p>On a scale from 1-7, how quickly did Justin make his decision?</p>", required: true, labels: speed_likert, name: "justin_manipulation_check" },
       { prompt: "<p>On a scale from 1-7, how quickly did Nate make his decision?</p>", required: true, labels: speed_likert, name: "nate_manipulation_check" },
     ],
-    // randomize the order of these questions
+    // randomized the order of these questions
     randomize_question_order: true,
     scale_width: 400
   }
@@ -227,23 +226,25 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
   /* start the experiment */
 
 
-  // asking moral character evaluation questions
-  // NEED TO CHANGE LIKERT SCALES
-
   var moral_principle_questions = {
     type: jsPsychSurveyLikert,
     questions: [
       { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "justin_principles_eval" },
-      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "nate_principles_eval" },],
-    scale_width: 400
-  }
+      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "nate_principles_eval" },
+    ],
+      randomize_question_order: true,
+      scale_width: 400,
+       data: { block_type: "principles" } 
+  } //we randomized the order of these questions so that some participants see the Justin question first and others see the Nate question first
 
   var moral_standard_questions = {
     type: jsPsychSurveyLikert,
     questions: [
       { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Justin’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "justin_standards_eval" },
       { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate Nate’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>", required: true, labels: moral_likert, name: "nate_standards_eval" },],
-    scale_width: 400
+    randomize_question_order: true,
+    scale_width: 400,
+    data: { block_type: "standards" } 
   }
 
   var depth_questions = {
@@ -252,12 +253,16 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
       { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Justin has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "justin_deepness_eval" },
       { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply Nate has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "nate_deepness_eval" }
     ],
-    scale_width: 400
+     randomize_question_order: true,
+    scale_width: 400,
+    data: { block_type: "depth" } 
+    
   }
 
-  timeline.push(moral_principle_questions);
-  timeline.push(moral_standard_questions);
-  timeline.push(depth_questions);
+var survey_blocks = [moral_principle_questions, moral_standard_questions, depth_questions];
+var randomized_blocks = jsPsych.randomization.shuffle(survey_blocks);
+
+randomized_blocks.forEach(block => timeline.push(block)); //so for these question blocks (each pair of questions: principles, depth, standards), the order is randomized
 
   //PLEASE KEEP FOR ALL FUTURE ITERATIONS
   //this portion of the code ensures that the data gets sent to be stored on OSF
