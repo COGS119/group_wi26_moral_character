@@ -250,7 +250,6 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
      randomize_question_order: true,
     scale_width: 400,
     data: { block_type: "depth" } 
-    
   }
 
 var survey_blocks = [moral_principle_questions, moral_standard_questions];
@@ -259,7 +258,7 @@ randomized_blocks.forEach(block => timeline.push(block)); //so for the principle
 
 timeline.push(depth_questions); //we want the depth questions to be last, so we add them after randomizing the order of the principle and standard question blocks
 
-//TRIAL NUMBER 2: BYSTANDER SCENARIO
+//TRIAL NUMBER 2: DO-NOTHING SCENARIO (bystander)
 //added another manipulation: decision to do nothing with the wallet, varied across 2 decision times
 var bystander_scenario = {
     type: jsPsychHtmlButtonResponse,
@@ -278,7 +277,7 @@ var byst_conditions = ["quick", "slow"];
   });
 
 if (byst_cond_assignment == "slow") {
-  var byst_scenario_quick = {
+  var byst_scenario_slow = {
     type: jsPsychHtmlButtonResponse,
     stimulus: byst_stimulus_slow['text'], //this is the paragraph where B sees the decision as difficult and takes a long time.
     choices: ["Continue"],
@@ -287,9 +286,9 @@ if (byst_cond_assignment == "slow") {
       condition: VIGNETTES[4]['condition']
     }
   }
-  timeline.push(byst_scenario_quick);
+  timeline.push(byst_scenario_slow);
 } else {
-  var byst_scenario_slow = {
+  var byst_scenario_quick = {
     type: jsPsychHtmlButtonResponse,
     stimulus: byst_stimulus_quick['text'], //this is the paragraph where B sees the decision as easy and takes a short time.
     choices: ["Continue"],
@@ -298,7 +297,7 @@ if (byst_cond_assignment == "slow") {
       condition: VIGNETTES[5]['condition']
     }
   }
-timeline.push(byst_scenario_slow);
+timeline.push(byst_scenario_quick);
 }
 
   var byst_mp_questions = {
@@ -361,6 +360,8 @@ var gender_identity_entry = {
 timeline.push(gender_identity_entry);
 
 //Insert Moral Attitudes Questionaire (Linda)
+
+//Insert Question about what they think the expt was about (Arhait)
 
 //Insert debrief (Megan)
 
