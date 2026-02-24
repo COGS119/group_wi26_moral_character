@@ -111,7 +111,7 @@ timeline.push(enter_fullscreen);
   console.log(VIGNETTES)
 
   //let's store one of these elements
-  moral_stimulus_1 = VIGNETTES[0] //this paragraph talks about J (quick) and then N (slow
+  moral_stimulus_1 = VIGNETTES[0] //this paragraph talks about J (quick) and then N (slow)
   moral_stimulus_2 = VIGNETTES[1] //this paragraph about N (slow) and then J (quick)
   immoral_stimulus_1 = VIGNETTES[2] //same for the immoral condition ^ We are counterbalancing the presentation order of the decision time
   immoral_stimulus_2 = VIGNETTES[3] 
@@ -217,7 +217,6 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
 
   /* start the experiment */
 
-
   var moral_principle_questions = {
     type: jsPsychSurveyLikert,
     questions: [
@@ -231,6 +230,7 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
 
   var moral_standard_questions = {
     type: jsPsychSurveyLikert,
+    preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
     questions: [
       { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate J’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "j_standards_eval" },
       { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate N’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>", required: true, labels: moral_likert, name: "n_standards_eval" },],
@@ -241,6 +241,7 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
 
   var depth_questions = {
     type: jsPsychSurveyLikert,
+    preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
     questions: [
       { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply J has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "j_deepness_eval" },
       { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply N has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "n_deepness_eval" }
