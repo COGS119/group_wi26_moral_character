@@ -91,7 +91,7 @@ timeline.push(enter_fullscreen);
   var instructions = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-   <p>In this experiment, you will be presented with 2 paragraphs.</p><p>Please read through these carefully.</p>
+   <p>In this experiment, you will be presented with potential scenarios.</p><p>Please read through these carefully.</p>
    <p>You will answer a series of questions afterwards.</p>
    <p>Press any key to begin.</p>
  `
@@ -348,7 +348,7 @@ timeline.push(byst_depth_questions);
 
 var gender_identity_entry = {
     type: jsPsychSurveyText,
-    questions: [{ prompt: "Please enter your gender identity (female, male, non-binary)", name: "gender"}],
+    questions: [{ prompt: "Please enter your gender identity (female, male, non-binary).", name: "gender"}],
     on_finish: function (data) {
       console.log(data.response)
       jsPsych.data.addProperties({
