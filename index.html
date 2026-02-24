@@ -115,10 +115,15 @@ timeline.push(enter_fullscreen);
   moral_stimulus_2 = VIGNETTES[1] //this paragraph about N (slow) and then J (quick)
   immoral_stimulus_1 = VIGNETTES[2] //same for the immoral condition ^ We are counterbalancing the presentation order of the decision time
   immoral_stimulus_2 = VIGNETTES[3] 
+  byst_stimulus_slow = VIGNETTES[4]
+  byst_stimulus_quick = VIGNETTES[5]
+
   console.log(moral_stimulus_1)
   console.log(moral_stimulus_2)
   console.log(immoral_stimulus_1)
   console.log(immoral_stimulus_2)
+  console.log(byst_stimulus_slow)
+  console.log(byst_stimulus_quick)
 
 var moral_stimuli = [moral_stimulus_1, moral_stimulus_2]; //assign the two moral stimuli to a variable
 var immoral_stimuli = [immoral_stimulus_1, immoral_stimulus_2]; //assign the two immoral stimuli to a variable
@@ -252,6 +257,81 @@ randomized_blocks.forEach(block => timeline.push(block)); //so for the principle
 
 timeline.push(depth_questions); //we want the depth questions to be last, so we add them after randomizing the order of the principle and standard question blocks
 
+//TRIAL NUMBER 2: BYSTANDER SCENARIO
+//added another manipulation: decision to do nothing with the wallet, varied across 2 decision times
+var bystander_scenario = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "<p> The next day, B was leaving the local grocery store when they also spotted a lost wallet next to their car.</p><p> Upon picking up the wallet and looking inside, B found several hundred dollars in cash. </p>",
+    choices: ["Continue"]
+  }
+  timeline.push(bystander_scenario)
+
+  //randomly assign to quick or slow condition 
+var byst_conditions = ["quick", "slow"];
+  var byst_cond_assignment = jsPsych.randomization.sampleWithoutReplacement(byst_conditions, 1)[0]
+  console.log(byst_cond_assignment); //this randomly assigns participants to either the quick or slow bystander condition.
+
+  jsPsych.data.addProperties({
+    bystander_condition: byst_cond_assignment
+  });
+
+if (byst_cond_assignment == "slow") {
+  var byst_scenario_quick = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: byst_stimulus_slow['text'], //this is the paragraph where B sees the decision as difficult and takes a long time.
+    choices: ["Continue"],
+    data: {
+      item_type: VIGNETTES[4]['item_type'],
+      condition: VIGNETTES[4]['condition']
+    }
+  }
+  timeline.push(byst_scenario_quick);
+} else {
+  var byst_scenario_slow = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: byst_stimulus_quick['text'], //this is the paragraph where B sees the decision as easy and takes a short time.
+    choices: ["Continue"],
+    data: {
+      item_type: VIGNETTES[5]['item_type'],
+      condition: VIGNETTES[5]['condition']
+    }
+  }
+timeline.push(byst_scenario_slow);
+}
+
+  var byst_mp_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "b_principles_eval" },
+    ],
+      scale_width: 400,
+       data: { block_type: "principles" } 
+  } 
+
+  var byst_ms_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "b_standards_eval" },
+  ],
+      scale_width: 400,
+    data: { block_type: "standards" } 
+  }
+
+  var byst_depth_questions = {
+    type: jsPsychSurveyLikert,
+    questions: [
+      { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply B has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "b_deepness_eval" }
+    ],
+    scale_width: 400,
+    data: { block_type: "depth" } 
+    
+  }
+
+var byst_survey_block = [byst_mp_questions, byst_ms_questions];
+var randomized_blocks = jsPsych.randomization.shuffle(byst_survey_block);
+randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
+
+timeline.push(byst_depth_questions); 
 
 //demographic questions!
  var participant_age_entry = {
