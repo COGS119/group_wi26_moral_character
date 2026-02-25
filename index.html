@@ -165,6 +165,26 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
     "deep within"
   ]
 
+  var certainty_likert = [
+"not at all",
+"",
+"",
+"",
+"",
+"",
+"extremely"
+];
+
+var impulsivity_likert = [
+"not at all",
+"",
+"",
+"",
+"",
+"",
+"extremely"
+];
+
   var conditions = ["moral", "immoral"]
   var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
   console.log(condition_assignment); //this randomly assigns participants to either the moral or immoral condition.
@@ -215,8 +235,10 @@ var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_st
   timeline.push(trial_manipulation_check_questions);
 
 
-  /* start the experiment */
 
+
+
+  /* start the experiment */
   var moral_principle_questions = {
     type: jsPsychSurveyLikert,
     preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
@@ -257,6 +279,54 @@ var randomized_blocks = jsPsych.randomization.shuffle(survey_blocks);
 randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
 
 timeline.push(depth_questions); //we want the depth questions to be last, so we add them after randomizing the order of the principle and standard question blocks
+
+
+var certainty_questions = {
+type: jsPsychSurveyLikert,
+preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
+questions: [
+  // conflicted feeling when making decision, reverse-scored
+  { prompt: "<p>How conflicted did J feel when making their decision?</p>", required: true, labels: certainty_likert, name: "j_cert_conflicted_RS" },
+  { prompt: "<p>How conflicted did N feel when making their decision?</p>", required: true, labels: certainty_likert, name: "n_cert_conflicted_RS" },
+  // their reservations, reverse-scored so higher ratings mean more certainty
+  { prompt: "<p>How many reservations did J have about their decision?</p>", required: true, labels: certainty_likert, name: "j_cert_reservations_RS" },
+  { prompt: "<p>How many reservations did N have about their decision?</p>", required: true, labels: certainty_likert, name: "n_cert_reservations_RS" },
+  // quite certain vs reserved, not reverse scored
+  { prompt: "<p>To what extent was J quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "j_cert_quite_certain" },
+  { prompt: "<p>To what extent was N quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "n_cert_quite_certain" },
+  // far from choosing alternate action, not reverse scored
+  { prompt: "<p>How far was J from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "j_cert_far_from_alternative" },
+  { prompt: "<p>How far was N from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "n_cert_far_from_alternative" },
+],
+
+randomize_question_order: true,
+scale_width: 400,
+data: { block_type: "certainty" }
+};
+
+var emotional_impulsivity_questions = {
+type: jsPsychSurveyLikert,
+preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
+questions: [
+  // calm and emotionally contained, reverse scored
+  { prompt: "<p>To what extent did J remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "j_imp_calm_contained_RS" },
+  { prompt: "<p>To what extent did N remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "n_imp_calm_contained_RS" },
+  // became upset and acted without thinking, not reverse scored
+  { prompt: "<p>To what extent did J become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "j_imp_upset_acted_without_thinking" },
+  { prompt: "<p>To what extent did N become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "n_imp_upset_acted_without_thinking" },
+],
+randomize_question_order: true,
+scale_width: 400,
+data: { block_type: "emotional_impulsivity" }
+};
+
+timeline.push(certainty_questions);
+timeline.push(emotional_impulsivity_questions);
+
+
+
+
+
 
 //TRIAL NUMBER 2: DO-NOTHING SCENARIO (bystander)
 //added another manipulation: decision to do nothing with the wallet, varied across 2 decision times
@@ -300,13 +370,17 @@ if (byst_cond_assignment == "slow") {
 timeline.push(byst_scenario_quick);
 }
 
+
+
+//DO-NOTHING SCENARIO questions below:
+//MORAL EVALUATION QUESTIONS.
   var byst_mp_questions = {
     type: jsPsychSurveyLikert,
     questions: [
       { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "b_principles_eval" },
     ],
       scale_width: 400,
-       data: { block_type: "principles" } 
+       data: { block_type: "byst_principles" } 
   } 
 
   var byst_ms_questions = {
@@ -315,7 +389,7 @@ timeline.push(byst_scenario_quick);
       { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "b_standards_eval" },
   ],
       scale_width: 400,
-    data: { block_type: "standards" } 
+    data: { block_type: "byst_standards" } 
   }
 
   var byst_depth_questions = {
@@ -324,15 +398,52 @@ timeline.push(byst_scenario_quick);
       { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply B has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "b_deepness_eval" }
     ],
     scale_width: 400,
-    data: { block_type: "depth" } 
+    data: { block_type: "byst_depth" } 
     
   }
 
 var byst_survey_block = [byst_mp_questions, byst_ms_questions];
-var randomized_blocks = jsPsych.randomization.shuffle(byst_survey_block);
-randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
+var byst_randomized_blocks = jsPsych.randomization.shuffle(byst_survey_block);
+byst_randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
 
 timeline.push(byst_depth_questions); 
+
+//DO-NOTHING SCENARIO: CERTAINTY AND EMOTIONAL IMPULSIVITY QUESTIONS
+var byst_certainty_questions = {
+type: jsPsychSurveyLikert,
+questions: [
+  // conflicted feeling when making decision, reverse-scored
+  { prompt: "<p>How conflicted did B feel when making their decision?</p>", required: true, labels: certainty_likert, name: "B_cert_conflicted_RS" },
+  // their reservations, reverse-scored so higher ratings mean more certainty
+  { prompt: "<p>How many reservations did B have about their decision?</p>", required: true, labels: certainty_likert, name: "B_cert_reservations_RS" },
+  // quite certain vs reserved, not reverse scored
+  { prompt: "<p>To what extent was B quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "B_cert_quite_certain" },
+  // far from choosing alternate action, not reverse scored
+  { prompt: "<p>How far was B from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "B_cert_far_from_alternative" },  
+],
+randomize_question_order: true,
+scale_width: 400,
+data: { block_type: "byst_certainty" }
+};
+
+var byst_EI_questions = {
+type: jsPsychSurveyLikert,
+questions: [
+  { prompt: "<p>To what extent did B remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "b_imp_calm_contained_RS" },
+  { prompt: "<p>To what extent did B become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "b_imp_upset_acted_without_thinking" },
+],
+randomize_question_order: true,
+scale_width: 400,
+data: { block_type: "byst_emotional_impulsivity" }
+};
+
+var byst_survey_block_2 = [byst_certainty_questions, byst_EI_questions];
+var byst_randomized_blocks_2 = jsPsych.randomization.shuffle(byst_survey_block_2);
+byst_randomized_blocks_2.forEach(block => timeline.push(block)); //so for the certainty and emotional impulsivity question blocks, the order is randomized
+
+
+
+
 
 //demographic questions!
  var participant_age_entry = {
@@ -356,10 +467,67 @@ var gender_identity_entry = {
         gender: data.response.gender
       });
     }
-  };
+  }; 
 timeline.push(gender_identity_entry);
 
-//Insert Moral Attitudes Questionaire (Linda)
+//Insert Moral Attitudes Questionaire (Linda) - extra demographic questions
+var moral_attitudes_likert = [
+"Strongly disagree",
+"Disagree",
+"Somewhat disagree",
+"Neutral",
+"Somewhat agree",
+"Agree",
+"Strongly agree"
+];
+
+var moral_attitudes_questionnaire = {
+type: jsPsychSurveyLikert,
+preamble: "<p>Rate the following statements.</p>",
+questions: [
+
+{
+prompt: "<p>I rely on my gut feelings when deciding if something is right or wrong.</p>",
+required: true,
+labels: moral_attitudes_likert,
+name: "ma_gut_feelings"
+},
+
+{
+prompt: "<p>It is important to carefully think through moral decisions before acting.</p>",
+required: true,
+labels: moral_attitudes_likert,
+name: "ma_think_through"
+},
+
+{
+prompt: "<p>The outcome of an action is what matters most when judging whether it is right or wrong.</p>",
+required: true,
+labels: moral_attitudes_likert,
+name: "ma_outcomes_matter"
+},
+
+{
+prompt: "<p>Some actions are just wrong, no matter what the outcome is.</p>",
+required: true,
+labels: moral_attitudes_likert,
+name: "ma_some_actions_wrong"
+},
+
+{
+prompt: "<p>People’s moral decisions say a lot about who they are as a person.</p>",
+required: true,
+labels: moral_attitudes_likert,
+name: "ma_character_reflective"
+}
+
+],
+randomize_question_order: true,
+scale_width: 500,
+data: { block_type: "moral_attitudes" }
+};
+
+timeline.push(moral_attitudes_questionnaire);
 
 //Insert Question about what they think the expt was about (Arhait)
 
