@@ -298,11 +298,10 @@ questions: [
   { prompt: "<p>How far was J from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "j_cert_far_from_alternative" },
   { prompt: "<p>How far was N from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "n_cert_far_from_alternative" },
 ],
-
-randomize_question_order: true,
 scale_width: 400,
 data: { block_type: "certainty" }
 };
+timeline.push(certainty_questions);
 
 var emotional_impulsivity_questions = {
 type: jsPsychSurveyLikert,
@@ -315,12 +314,10 @@ questions: [
   { prompt: "<p>To what extent did J become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "j_imp_upset_acted_without_thinking" },
   { prompt: "<p>To what extent did N become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "n_imp_upset_acted_without_thinking" },
 ],
-randomize_question_order: true,
 scale_width: 400,
 data: { block_type: "emotional_impulsivity" }
 };
 
-timeline.push(certainty_questions);
 timeline.push(emotional_impulsivity_questions);
 
 
