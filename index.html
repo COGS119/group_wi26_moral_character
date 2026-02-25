@@ -291,6 +291,17 @@ questions: [
   // their reservations, reverse-scored so higher ratings mean more certainty
   { prompt: "<p>How many reservations did J have about their decision?</p>", required: true, labels: certainty_likert, name: "j_cert_reservations_RS" },
   { prompt: "<p>How many reservations did N have about their decision?</p>", required: true, labels: certainty_likert, name: "n_cert_reservations_RS" },
+],
+  scale_width: 400,
+data: { block_type: "certainty" }
+};
+timeline.push(certainty_questions);
+
+//i split the certainty questions into 2 parts, so it is not overwhelming for participants to answer all at once. We will randomize the order of these 2 blocks, so some participants will see the conflicted feelings and reservations questions first, and others will see the quite certain and far from alternative questions first.
+var certainty_questions_2 = { 
+  type: jsPsychSurveyLikert,
+  preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
+  questions: [
   // quite certain vs reserved, not reverse scored
   { prompt: "<p>To what extent was J quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "j_cert_quite_certain" },
   { prompt: "<p>To what extent was N quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "n_cert_quite_certain" },
@@ -301,7 +312,7 @@ questions: [
 scale_width: 400,
 data: { block_type: "certainty" }
 };
-timeline.push(certainty_questions);
+timeline.push(certainty_questions_2);
 
 var emotional_impulsivity_questions = {
 type: jsPsychSurveyLikert,
@@ -416,7 +427,7 @@ questions: [
   // quite certain vs reserved, not reverse scored
   { prompt: "<p>To what extent was B quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "B_cert_quite_certain" },
   // far from choosing alternate action, not reverse scored
-  { prompt: "<p>How far was B from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "B_cert_far_from_alternative" },  
+  { prompt: "<p>How far was B from choosing an alternate course of action?</p>", required: true, labels: certainty_likert, name: "B_cert_far_from_alternative" },  
 ],
 randomize_question_order: true,
 scale_width: 400,
@@ -480,7 +491,7 @@ var moral_attitudes_likert = [
 
 var moral_attitudes_questionnaire = {
 type: jsPsychSurveyLikert,
-preamble: "<p>Rate the following statements.</p>",
+preamble: "<p>You are almost finished with the experiment. Please rate the following statements.</p>",
 questions: [
 
 {
