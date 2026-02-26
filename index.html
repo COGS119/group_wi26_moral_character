@@ -549,6 +549,19 @@ questions: [{ prompt: "What do you think the experiment was about? Did you run i
   };
   timeline.push(participant_inquiry_entry);
 
+var debrief = {
+	type: jsPsychHtmlButtonResponse,
+	stimulus: `
+	<h3>Debriefing</h3>
+	<p>Thank you for participating in this study!</p>
+	<p>The purpose of this experiment was to examine how people evaluate moral character and decision-making based on how quickly or slowly they make moral decisions.</p> 
+  <p>There are no right or wrong answers. Your responses reflect personal impressions.</p>
+  <p>If you have any questions, please contact the researchers! Thank you again for your participation.</p>
+`,
+	choices: ["Finish"]
+};
+
+timeline.push(debrief);
 
 
   //PLEASE KEEP FOR ALL FUTURE ITERATIONS
