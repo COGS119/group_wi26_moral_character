@@ -18,15 +18,16 @@
   <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
 
   <style>
-.jspsych-content {
-    max-width: calc(100vw - 2in) !important; /* full width minus 1in on each side */
-    width: calc(100vw - 2in) !important;
-    margin-left: 1in !important;
-    margin-right: 1in !important;
-    line-height: 1.6;
-    font-size: 20px;
-}
-</style>
+    .jspsych-content {
+      max-width: calc(100vw - 2in) !important;
+      /* full width minus 1in on each side */
+      width: calc(100vw - 2in) !important;
+      margin-left: 1in !important;
+      margin-right: 1in !important;
+      line-height: 1.6;
+      font-size: 20px;
+    }
+  </style>
 
 </head>
 
@@ -42,10 +43,6 @@
     }
   });
 
-
-  /* create timeline */
-  var timeline = [];
-
   //PLEASE KEEP FOR ALL FUTURE ITERATIONS
   //create a unique filename by combining a random string and a millisecond counter (to avoid duplicates)
   var random_id = jsPsych.randomization.randomID(10);
@@ -59,526 +56,572 @@
   });
   //PLEASE KEEP FOR ALL FUTURE ITERATIONS
 
- var enter_fullscreen = {
-  type: jsPsychFullscreen,
-  fullscreen_mode: true
-}
-timeline.push(enter_fullscreen);
+  //wrap the timeline creation in a function
+  //this allows us to make an asynchronous call with data pipe to get a condition number
+  //which allows us to do true counterbalancing
+  function createTimeline(condition_number) {
 
-  var welcome = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: "Welcome to the experiment. Press any key to begin."
-  };
+    /* create timeline */
+    var timeline = [];
 
-  timeline.push(welcome);
+    //assigning to our possible conditions here
+    //4 total combinations of condition_assignment and byst_cond_assignment
+    console.log(condition_number);
+    if (condition_number == 0) {
+      var condition_assignment = "moral";
+      var byst_cond_assignment = "quick";
+    } else if (condition_number == 1) {
+      var condition_assignment = "immoral";
+      var byst_cond_assignment = "quick";
+    } else if (condition_number == 2) {
+      var condition_assignment = "moral";
+      var byst_cond_assignment = "slow";
+    } else if (condition_number == 3) {
+      var condition_assignment = "immoral";
+      var byst_cond_assignment = "slow";
+    } else {
+      console.log("Something went wrong - randomly assigning");
+      //this randomly assigns participants to either the moral or immoral condition.
+      var conditions = ["moral", "immoral"]
+      var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
 
-
-  var participant_id_entry = {
-    type: jsPsychSurveyText,
-    questions: [{ prompt: "Please enter your participant ID:", name: "participant_id" }],
-    on_finish: function (data) {
-      console.log(data.response)
-      jsPsych.data.addProperties({
-        participant: data.response.participant_id
-      });
+      //randomly assign to quick or slow condition 
+      var byst_conditions = ["quick", "slow"];
+      var byst_cond_assignment = jsPsych.randomization.sampleWithoutReplacement(byst_conditions, 1)[0];
     }
-  };
+
+    console.log(condition_assignment);
+    console.log(byst_cond_assignment); //this randomly assigns participants to either the quick or slow bystander condition.
+
+    // add conditions to data
+    jsPsych.data.addProperties({
+      bystander_condition: byst_cond_assignment,
+      condition: condition_assignment
+    });
 
 
-  timeline.push(participant_id_entry);
+    /* create timeline */
+    var timeline = [];
 
 
-  var instructions = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
+
+
+
+    var enter_fullscreen = {
+      type: jsPsychFullscreen,
+      fullscreen_mode: true
+    }
+    timeline.push(enter_fullscreen);
+
+    var welcome = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "Welcome to the experiment. Press any key to begin."
+    };
+
+    timeline.push(welcome);
+
+
+    var participant_id_entry = {
+      type: jsPsychSurveyText,
+      questions: [{ prompt: "Please enter your participant ID:", name: "participant_id" }],
+      on_finish: function (data) {
+        console.log(data.response)
+        jsPsych.data.addProperties({
+          participant: data.response.participant_id
+        });
+      }
+    };
+
+
+    timeline.push(participant_id_entry);
+
+
+    var instructions = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
    <p>In this experiment, you will be presented with potential scenarios.</p><p>Please read through these carefully.</p>
    <p>You will answer a series of questions afterwards.</p>
    <p>Press any key to begin.</p>
  `
-  };
+    };
 
 
-  timeline.push(instructions);
+    timeline.push(instructions);
 
-  var scenario = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: "<p>Two people, J and N, were walking to separate cars in the parking lot of Andronico's, a local grocery store, where they each spotted a different lost wallet next to the cars.</p><p> Upon picking up the wallet and looking inside, each found several hundred dollars in cash. Each person considered whether they should return the wallet and money to the Customer Service desk at Andronico's, or pocket the money and drive away.</p>",
-    choices: ["Continue"]
-  }
-  timeline.push(scenario)//I changed the names to just J and N, and made the gender ambiguous to control for gender biases
-
- 
-  console.log(VIGNETTES)
-
-  //let's store one of these elements
-  moral_stimulus_1 = VIGNETTES[0] //this paragraph talks about J (quick) and then N (slow)
-  moral_stimulus_2 = VIGNETTES[1] //this paragraph about N (slow) and then J (quick)
-  immoral_stimulus_1 = VIGNETTES[2] //same for the immoral condition ^ We are counterbalancing the presentation order of the decision time
-  immoral_stimulus_2 = VIGNETTES[3] 
-  byst_stimulus_slow = VIGNETTES[4]
-  byst_stimulus_quick = VIGNETTES[5]
-
-  console.log(moral_stimulus_1)
-  console.log(moral_stimulus_2)
-  console.log(immoral_stimulus_1)
-  console.log(immoral_stimulus_2)
-  console.log(byst_stimulus_slow)
-  console.log(byst_stimulus_quick)
-
-var moral_stimuli = [moral_stimulus_1, moral_stimulus_2]; //assign the two moral stimuli to a variable
-var immoral_stimuli = [immoral_stimulus_1, immoral_stimulus_2]; //assign the two immoral stimuli to a variable
-
-var moral_stimulus = jsPsych.randomization.sampleWithoutReplacement(moral_stimuli, 1)[0]
-var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_stimuli, 1)[0]
-//randomize the paragraph order in each condition, so that some participants see moral_stimulus_1 and others see moral_stimulus_2 (same for immoral stimuli)
-//counterbalances the presentation order for decision time
-
-  //define likert scale labels for each question
-  //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
-  var speed_likert = [
-    "very slowly",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "very quickly"
-  ]
-
-  var moral_likert = [
-    "entirely bad",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "entirely good"
-  ]
-
-  var deep_likert = [
-    "surface level",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "deep within"
-  ]
-
-  var certainty_likert = [
-"not at all",
-"",
-"",
-"",
-"",
-"",
-"extremely"
-];
-
-var impulsivity_likert = [
-"not at all",
-"",
-"",
-"",
-"",
-"",
-"extremely"
-];
-
-  var conditions = ["moral", "immoral"]
-  var condition_assignment = jsPsych.randomization.sampleWithoutReplacement(conditions, 1)[0]
-  console.log(condition_assignment); //this randomly assigns participants to either the moral or immoral condition.
-
-  jsPsych.data.addProperties({
-    condition: condition_assignment
-  });
-
-  //after assigning participants to a condition, we present them with the corresponding paragraph below.
-  if (condition_assignment == "moral") {
-    var moral_scenario = {
+    var scenario = {
       type: jsPsychHtmlButtonResponse,
-      stimulus: moral_stimulus['text'], //they will either see moral_stimulus_1 or moral_stimulus_2, which differ in the presentation order of the decision time manipulation
-      choices: ["Continue"],
-      // store elements from the stimulus item
-      data: {
-        item_type: moral_stimulus['item_type'],
-        condition: moral_stimulus['condition']
-      }
+      stimulus: "<p>Two people, J and N, were walking to separate cars in the parking lot of Andronico's, a local grocery store, where they each spotted a different lost wallet next to the cars.</p><p> Upon picking up the wallet and looking inside, each found several hundred dollars in cash. Each person considered whether they should return the wallet and money to the Customer Service desk at Andronico's, or pocket the money and drive away.</p>",
+      choices: ["Continue"]
     }
-    timeline.push(moral_scenario);
-  } else {
-    var immoral_scenario = {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: immoral_stimulus['text'],
-      choices: ["Continue"],
-      // store elements from the stimulus item
-      data: {
-        item_type: immoral_stimulus['item_type'],
-        condition: immoral_stimulus['condition']
+    timeline.push(scenario)//I changed the names to just J and N, and made the gender ambiguous to control for gender biases
+
+
+    console.log(VIGNETTES)
+
+    //let's store one of these elements
+    moral_stimulus_1 = VIGNETTES[0] //this paragraph talks about J (quick) and then N (slow)
+    moral_stimulus_2 = VIGNETTES[1] //this paragraph about N (slow) and then J (quick)
+    immoral_stimulus_1 = VIGNETTES[2] //same for the immoral condition ^ We are counterbalancing the presentation order of the decision time
+    immoral_stimulus_2 = VIGNETTES[3]
+    byst_stimulus_slow = VIGNETTES[4]
+    byst_stimulus_quick = VIGNETTES[5]
+
+    console.log(moral_stimulus_1)
+    console.log(moral_stimulus_2)
+    console.log(immoral_stimulus_1)
+    console.log(immoral_stimulus_2)
+    console.log(byst_stimulus_slow)
+    console.log(byst_stimulus_quick)
+
+    var moral_stimuli = [moral_stimulus_1, moral_stimulus_2]; //assign the two moral stimuli to a variable
+    var immoral_stimuli = [immoral_stimulus_1, immoral_stimulus_2]; //assign the two immoral stimuli to a variable
+
+    var moral_stimulus = jsPsych.randomization.sampleWithoutReplacement(moral_stimuli, 1)[0]
+    var immoral_stimulus = jsPsych.randomization.sampleWithoutReplacement(immoral_stimuli, 1)[0]
+    //randomize the paragraph order in each condition, so that some participants see moral_stimulus_1 and others see moral_stimulus_2 (same for immoral stimuli)
+    //counterbalances the presentation order for decision time
+
+    //define likert scale labels for each question
+    //we have seven options, so seven entries. We need to *at least* specify the extremes of the scale.
+    var speed_likert = [
+      "very slowly",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "very quickly"
+    ]
+
+    var moral_likert = [
+      "entirely bad",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "entirely good"
+    ]
+
+    var deep_likert = [
+      "surface level",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "deep within"
+    ]
+
+    var certainty_likert = [
+      "not at all",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "extremely"
+    ];
+
+    var impulsivity_likert = [
+      "not at all",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "extremely"
+    ];
+
+    //after assigning participants to a condition, we present them with the corresponding paragraph below.
+    if (condition_assignment == "moral") {
+      var moral_scenario = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: moral_stimulus['text'], //they will either see moral_stimulus_1 or moral_stimulus_2, which differ in the presentation order of the decision time manipulation
+        choices: ["Continue"],
+        // store elements from the stimulus item
+        data: {
+          item_type: moral_stimulus['item_type'],
+          condition: moral_stimulus['condition']
+        }
       }
+      timeline.push(moral_scenario);
+    } else {
+      var immoral_scenario = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: immoral_stimulus['text'],
+        choices: ["Continue"],
+        // store elements from the stimulus item
+        data: {
+          item_type: immoral_stimulus['item_type'],
+          condition: immoral_stimulus['condition']
+        }
+      }
+      timeline.push(immoral_scenario);
     }
-    timeline.push(immoral_scenario);
-  }
 
-  //first add manipulation check questions
-  var trial_manipulation_check_questions = {
-    type: jsPsychSurveyLikert,
-    questions: [
-      { prompt: "<p>On a scale from 1-7, how quickly did J make their decision?</p>", required: true, labels: speed_likert, name: "j_manipulation_check" },
-      { prompt: "<p>On a scale from 1-7, how quickly did N make their decision?</p>", required: true, labels: speed_likert, name: "n_manipulation_check" },
-    ],
-    // randomized the order of these questions
-    randomize_question_order: true,
-    scale_width: 400
-  }
+    //first add manipulation check questions
+    var trial_manipulation_check_questions = {
+      type: jsPsychSurveyLikert,
+      questions: [
+        { prompt: "<p>On a scale from 1-7, how quickly did J make their decision?</p>", required: true, labels: speed_likert, name: "j_manipulation_check" },
+        { prompt: "<p>On a scale from 1-7, how quickly did N make their decision?</p>", required: true, labels: speed_likert, name: "n_manipulation_check" },
+      ],
+      // randomized the order of these questions
+      randomize_question_order: true,
+      scale_width: 400
+    }
 
-  timeline.push(trial_manipulation_check_questions);
+    timeline.push(trial_manipulation_check_questions);
 
 
 
 
 
-  /* start the experiment */
-  var moral_principle_questions = {
-    type: jsPsychSurveyLikert,
-    preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
-    questions: [
-      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate J’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "j_principles_eval" },
-      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate N’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "n_principles_eval" },
-    ],
+    /* start the experiment */
+    var moral_principle_questions = {
+      type: jsPsychSurveyLikert,
+      preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
+      questions: [
+        { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate J’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "j_principles_eval" },
+        { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate N’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "n_principles_eval" },
+      ],
       randomize_question_order: true,
       scale_width: 400,
-       data: { block_type: "principles" } 
-  } //we randomized the order of these questions so that some participants see the Justin question first and others see the Nate question first
+      data: { block_type: "principles" }
+    } //we randomized the order of these questions so that some participants see the Justin question first and others see the Nate question first
 
-  var moral_standard_questions = {
-    type: jsPsychSurveyLikert,
-    preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
-    questions: [
-      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate J’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "j_standards_eval" },
-      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate N’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>", required: true, labels: moral_likert, name: "n_standards_eval" },],
-    randomize_question_order: true,
-    scale_width: 400,
-    data: { block_type: "standards" } 
-  }
-
-  var depth_questions = {
-    type: jsPsychSurveyLikert,
-    preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
-    questions: [
-      { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply J has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "j_deepness_eval" },
-      { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply N has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "n_deepness_eval" }
-    ],
-     randomize_question_order: true,
-    scale_width: 400,
-    data: { block_type: "depth" } 
-  }
-
-var survey_blocks = [moral_principle_questions, moral_standard_questions];
-var randomized_blocks = jsPsych.randomization.shuffle(survey_blocks);
-randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
-
-timeline.push(depth_questions); //we want the depth questions to be last, so we add them after randomizing the order of the principle and standard question blocks
-
-
-var certainty_questions = {
-type: jsPsychSurveyLikert,
-preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
-questions: [
-  // conflicted feeling when making decision, reverse-scored
-  { prompt: "<p>How conflicted did J feel when making their decision?</p>", required: true, labels: certainty_likert, name: "j_cert_conflicted_RS" },
-  { prompt: "<p>How conflicted did N feel when making their decision?</p>", required: true, labels: certainty_likert, name: "n_cert_conflicted_RS" },
-  // their reservations, reverse-scored so higher ratings mean more certainty
-  { prompt: "<p>How many reservations did J have about their decision?</p>", required: true, labels: certainty_likert, name: "j_cert_reservations_RS" },
-  { prompt: "<p>How many reservations did N have about their decision?</p>", required: true, labels: certainty_likert, name: "n_cert_reservations_RS" },
-],
-  scale_width: 400,
-data: { block_type: "certainty" }
-};
-timeline.push(certainty_questions);
-
-//i split the certainty questions into 2 parts, so it is not overwhelming for participants to answer all at once. We will randomize the order of these 2 blocks, so some participants will see the conflicted feelings and reservations questions first, and others will see the quite certain and far from alternative questions first.
-var certainty_questions_2 = { 
-  type: jsPsychSurveyLikert,
-  preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
-  questions: [
-  // quite certain vs reserved, not reverse scored
-  { prompt: "<p>To what extent was J quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "j_cert_quite_certain" },
-  { prompt: "<p>To what extent was N quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "n_cert_quite_certain" },
-  // far from choosing alternate action, not reverse scored
-  { prompt: "<p>How far was J from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "j_cert_far_from_alternative" },
-  { prompt: "<p>How far was N from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "n_cert_far_from_alternative" },
-],
-scale_width: 400,
-data: { block_type: "certainty" }
-};
-timeline.push(certainty_questions_2);
-
-var emotional_impulsivity_questions = {
-type: jsPsychSurveyLikert,
-preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
-questions: [
-  // calm and emotionally contained, reverse scored
-  { prompt: "<p>To what extent did J remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "j_imp_calm_contained_RS" },
-  { prompt: "<p>To what extent did N remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "n_imp_calm_contained_RS" },
-  // became upset and acted without thinking, not reverse scored
-  { prompt: "<p>To what extent did J become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "j_imp_upset_acted_without_thinking" },
-  { prompt: "<p>To what extent did N become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "n_imp_upset_acted_without_thinking" },
-],
-scale_width: 400,
-data: { block_type: "emotional_impulsivity" }
-};
-
-timeline.push(emotional_impulsivity_questions);
-
-
-
-
-
-
-//TRIAL NUMBER 2: DO-NOTHING SCENARIO (bystander)
-//added another manipulation: decision to do nothing with the wallet, varied across 2 decision times
-var bystander_scenario = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: "<p> The next day, B was leaving the local grocery store when they also spotted a lost wallet next to their car.</p><p> Upon picking up the wallet and looking inside, B found several hundred dollars in cash. </p>",
-    choices: ["Continue"]
-  }
-  timeline.push(bystander_scenario)
-
-  //randomly assign to quick or slow condition 
-var byst_conditions = ["quick", "slow"];
-  var byst_cond_assignment = jsPsych.randomization.sampleWithoutReplacement(byst_conditions, 1)[0]
-  console.log(byst_cond_assignment); //this randomly assigns participants to either the quick or slow bystander condition.
-
-  jsPsych.data.addProperties({
-    bystander_condition: byst_cond_assignment
-  });
-
-if (byst_cond_assignment == "slow") {
-  var byst_scenario_slow = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: byst_stimulus_slow['text'], //this is the paragraph where B sees the decision as difficult and takes a long time.
-    choices: ["Continue"],
-    data: {
-      item_type: VIGNETTES[4]['item_type'],
-      condition: VIGNETTES[4]['condition']
-    }
-  }
-  timeline.push(byst_scenario_slow);
-} else {
-  var byst_scenario_quick = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: byst_stimulus_quick['text'], //this is the paragraph where B sees the decision as easy and takes a short time.
-    choices: ["Continue"],
-    data: {
-      item_type: VIGNETTES[5]['item_type'],
-      condition: VIGNETTES[5]['condition']
-    }
-  }
-timeline.push(byst_scenario_quick);
-}
-
-
-
-//DO-NOTHING SCENARIO questions below:
-//MORAL EVALUATION QUESTIONS.
-  var byst_mp_questions = {
-    type: jsPsychSurveyLikert,
-    questions: [
-      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "b_principles_eval" },
-    ],
+    var moral_standard_questions = {
+      type: jsPsychSurveyLikert,
+      preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
+      questions: [
+        { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate J’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "j_standards_eval" },
+        { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate N’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong.</p>", required: true, labels: moral_likert, name: "n_standards_eval" },],
+      randomize_question_order: true,
       scale_width: 400,
-       data: { block_type: "byst_principles" } 
-  } 
+      data: { block_type: "standards" }
+    }
 
-  var byst_ms_questions = {
-    type: jsPsychSurveyLikert,
-    questions: [
-      { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "b_standards_eval" },
-  ],
+    var depth_questions = {
+      type: jsPsychSurveyLikert,
+      preamble: "<p> Reminder: J acted quickly, and N acted after a period of consideration.",
+      questions: [
+        { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply J has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "j_deepness_eval" },
+        { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply N has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "n_deepness_eval" }
+      ],
+      randomize_question_order: true,
       scale_width: 400,
-    data: { block_type: "byst_standards" } 
-  }
-
-  var byst_depth_questions = {
-    type: jsPsychSurveyLikert,
-    questions: [
-      { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply B has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "b_deepness_eval" }
-    ],
-    scale_width: 400,
-    data: { block_type: "byst_depth" } 
-    
-  }
-
-var byst_survey_block = [byst_mp_questions, byst_ms_questions];
-var byst_randomized_blocks = jsPsych.randomization.shuffle(byst_survey_block);
-byst_randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
-
-timeline.push(byst_depth_questions); 
-
-//DO-NOTHING SCENARIO: CERTAINTY AND EMOTIONAL IMPULSIVITY QUESTIONS
-var byst_certainty_questions = {
-type: jsPsychSurveyLikert,
-questions: [
-  // conflicted feeling when making decision, reverse-scored
-  { prompt: "<p>How conflicted did B feel when making their decision?</p>", required: true, labels: certainty_likert, name: "B_cert_conflicted_RS" },
-  // their reservations, reverse-scored so higher ratings mean more certainty
-  { prompt: "<p>How many reservations did B have about their decision?</p>", required: true, labels: certainty_likert, name: "B_cert_reservations_RS" },
-  // quite certain vs reserved, not reverse scored
-  { prompt: "<p>To what extent was B quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "B_cert_quite_certain" },
-  // far from choosing alternate action, not reverse scored
-  { prompt: "<p>How far was B from choosing an alternate course of action?</p>", required: true, labels: certainty_likert, name: "B_cert_far_from_alternative" },  
-],
-randomize_question_order: true,
-scale_width: 400,
-data: { block_type: "byst_certainty" }
-};
-
-var byst_EI_questions = {
-type: jsPsychSurveyLikert,
-questions: [
-  { prompt: "<p>To what extent did B remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "b_imp_calm_contained_RS" },
-  { prompt: "<p>To what extent did B become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "b_imp_upset_acted_without_thinking" },
-],
-randomize_question_order: true,
-scale_width: 400,
-data: { block_type: "byst_emotional_impulsivity" }
-};
-
-var byst_survey_block_2 = [byst_certainty_questions, byst_EI_questions];
-var byst_randomized_blocks_2 = jsPsych.randomization.shuffle(byst_survey_block_2);
-byst_randomized_blocks_2.forEach(block => timeline.push(block)); //so for the certainty and emotional impulsivity question blocks, the order is randomized
-
-
-
-
-
-//demographic questions!
- var participant_age_entry = {
-    type: jsPsychSurveyText,
-    questions: [{ prompt: "Please enter your age:", name: "participant_age" }],
-    on_finish: function (data) {
-      console.log(data.response)
-      jsPsych.data.addProperties({
-        age: data.response.participant_age
-      });
+      data: { block_type: "depth" }
     }
-  };
-  timeline.push(participant_age_entry);
 
-var gender_identity_entry = {
-    type: jsPsychSurveyText,
-    questions: [{ prompt: "Please enter your gender identity (female, male, non-binary).", name: "gender"}],
-    on_finish: function (data) {
-      console.log(data.response)
-      jsPsych.data.addProperties({
-        gender: data.response.gender
-      });
+    var survey_blocks = [moral_principle_questions, moral_standard_questions];
+    var randomized_blocks = jsPsych.randomization.shuffle(survey_blocks);
+    randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
+
+    timeline.push(depth_questions); //we want the depth questions to be last, so we add them after randomizing the order of the principle and standard question blocks
+
+
+    var certainty_questions = {
+      type: jsPsychSurveyLikert,
+      preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
+      questions: [
+        // conflicted feeling when making decision, reverse-scored
+        { prompt: "<p>How conflicted did J feel when making their decision?</p>", required: true, labels: certainty_likert, name: "j_cert_conflicted_RS" },
+        { prompt: "<p>How conflicted did N feel when making their decision?</p>", required: true, labels: certainty_likert, name: "n_cert_conflicted_RS" },
+        // their reservations, reverse-scored so higher ratings mean more certainty
+        { prompt: "<p>How many reservations did J have about their decision?</p>", required: true, labels: certainty_likert, name: "j_cert_reservations_RS" },
+        { prompt: "<p>How many reservations did N have about their decision?</p>", required: true, labels: certainty_likert, name: "n_cert_reservations_RS" },
+      ],
+      scale_width: 400,
+      data: { block_type: "certainty" }
+    };
+    timeline.push(certainty_questions);
+
+    //i split the certainty questions into 2 parts, so it is not overwhelming for participants to answer all at once. We will randomize the order of these 2 blocks, so some participants will see the conflicted feelings and reservations questions first, and others will see the quite certain and far from alternative questions first.
+    var certainty_questions_2 = {
+      type: jsPsychSurveyLikert,
+      preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
+      questions: [
+        // quite certain vs reserved, not reverse scored
+        { prompt: "<p>To what extent was J quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "j_cert_quite_certain" },
+        { prompt: "<p>To what extent was N quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "n_cert_quite_certain" },
+        // far from choosing alternate action, not reverse scored
+        { prompt: "<p>How far was J from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "j_cert_far_from_alternative" },
+        { prompt: "<p>How far was N from choosing the alternate course of action?</p>", required: true, labels: certainty_likert, name: "n_cert_far_from_alternative" },
+      ],
+      scale_width: 400,
+      data: { block_type: "certainty" }
+    };
+    timeline.push(certainty_questions_2);
+
+    var emotional_impulsivity_questions = {
+      type: jsPsychSurveyLikert,
+      preamble: "<p>Reminder: J acted quickly, and N acted after a period of consideration.</p>",
+      questions: [
+        // calm and emotionally contained, reverse scored
+        { prompt: "<p>To what extent did J remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "j_imp_calm_contained_RS" },
+        { prompt: "<p>To what extent did N remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "n_imp_calm_contained_RS" },
+        // became upset and acted without thinking, not reverse scored
+        { prompt: "<p>To what extent did J become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "j_imp_upset_acted_without_thinking" },
+        { prompt: "<p>To what extent did N become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "n_imp_upset_acted_without_thinking" },
+      ],
+      scale_width: 400,
+      data: { block_type: "emotional_impulsivity" }
+    };
+
+    timeline.push(emotional_impulsivity_questions);
+
+
+
+
+
+
+    //TRIAL NUMBER 2: DO-NOTHING SCENARIO (bystander)
+    //added another manipulation: decision to do nothing with the wallet, varied across 2 decision times
+    var bystander_scenario = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: "<p> The next day, B was leaving the local grocery store when they also spotted a lost wallet next to their car.</p><p> Upon picking up the wallet and looking inside, B found several hundred dollars in cash. </p>",
+      choices: ["Continue"]
     }
-  }; 
-timeline.push(gender_identity_entry);
+    timeline.push(bystander_scenario)
 
-//Insert Moral Attitudes Questionaire (Linda) - extra demographic questions
-var moral_attitudes_likert = [
-"Strongly disagree",
-"Disagree",
-"Somewhat disagree",
-"Neutral",
-"Somewhat agree",
-"Agree",
-"Strongly agree"
-];
-
-var moral_attitudes_questionnaire = {
-type: jsPsychSurveyLikert,
-preamble: "<p>You are almost finished with the experiment. Please rate the following statements.</p>",
-questions: [
-
-{
-prompt: "<p>I rely on my gut feelings when deciding if something is right or wrong.</p>",
-required: true,
-labels: moral_attitudes_likert,
-name: "ma_gut_feelings"
-},
-
-{
-prompt: "<p>It is important to carefully think through moral decisions before acting.</p>",
-required: true,
-labels: moral_attitudes_likert,
-name: "ma_think_through"
-},
-
-{
-prompt: "<p>The outcome of an action is what matters most when judging whether it is right or wrong.</p>",
-required: true,
-labels: moral_attitudes_likert,
-name: "ma_outcomes_matter"
-},
-
-{
-prompt: "<p>Some actions are just wrong, no matter what the outcome is.</p>",
-required: true,
-labels: moral_attitudes_likert,
-name: "ma_some_actions_wrong"
-},
-
-{
-prompt: "<p>People’s moral decisions say a lot about who they are as a person.</p>",
-required: true,
-labels: moral_attitudes_likert,
-name: "ma_character_reflective"
-}
-
-],
-randomize_question_order: true,
-scale_width: 500,
-data: { block_type: "moral_attitudes" }
-};
-
-timeline.push(moral_attitudes_questionnaire);
-
-var participant_inquiry_entry = {
-	type: jsPsychSurveyText,
-questions: [{ prompt: "What do you think the experiment was about? Did you run into any technical difficulties?" }],
-	on_finish: function (data) {
-	console.log(data.response)
-	jsPsych.data.addProperties ({
-       inquiry: data.response.participant_inquiry
-      });
+    if (byst_cond_assignment == "slow") {
+      var byst_scenario_slow = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: byst_stimulus_slow['text'], //this is the paragraph where B sees the decision as difficult and takes a long time.
+        choices: ["Continue"],
+        data: {
+          item_type: VIGNETTES[4]['item_type'],
+          condition: VIGNETTES[4]['condition']
+        }
+      }
+      timeline.push(byst_scenario_slow);
+    } else {
+      var byst_scenario_quick = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: byst_stimulus_quick['text'], //this is the paragraph where B sees the decision as easy and takes a short time.
+        choices: ["Continue"],
+        data: {
+          item_type: VIGNETTES[5]['item_type'],
+          condition: VIGNETTES[5]['condition']
+        }
+      }
+      timeline.push(byst_scenario_quick);
     }
-  };
-  timeline.push(participant_inquiry_entry);
 
-var debrief = {
-	type: jsPsychHtmlButtonResponse,
-	stimulus: `
+
+
+    //DO-NOTHING SCENARIO questions below:
+    //MORAL EVALUATION QUESTIONS.
+    var byst_mp_questions = {
+      type: jsPsychSurveyLikert,
+      questions: [
+        { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral principles. Moral principles are defined as one’s fundamental beliefs regarding what is right and wrong.</p>", required: true, labels: moral_likert, name: "b_principles_eval" },
+      ],
+      scale_width: 400,
+      data: { block_type: "byst_principles" }
+    }
+
+    var byst_ms_questions = {
+      type: jsPsychSurveyLikert,
+      questions: [
+        { prompt: "<p>On a scale of 1-7, (1 being “entirely bad” and 7 being “entirely good”), rate B’s moral standards. Moral standards are defined as one’s criteria for evaluating whether an action is right or wrong. </p>", required: true, labels: moral_likert, name: "b_standards_eval" },
+      ],
+      scale_width: 400,
+      data: { block_type: "byst_standards" }
+    }
+
+    var byst_depth_questions = {
+      type: jsPsychSurveyLikert,
+      questions: [
+        { prompt: "<p>On a scale of 1-7 (1 being surface level, and 7 being deep within), rate how deeply B has the moral principles and knowledge to do the right thing. </p>", required: true, labels: deep_likert, name: "b_deepness_eval" }
+      ],
+      scale_width: 400,
+      data: { block_type: "byst_depth" }
+
+    }
+
+    var byst_survey_block = [byst_mp_questions, byst_ms_questions];
+    var byst_randomized_blocks = jsPsych.randomization.shuffle(byst_survey_block);
+    byst_randomized_blocks.forEach(block => timeline.push(block)); //so for the principles and standards question blocks, the order is randomized
+
+    timeline.push(byst_depth_questions);
+
+    //DO-NOTHING SCENARIO: CERTAINTY AND EMOTIONAL IMPULSIVITY QUESTIONS
+    var byst_certainty_questions = {
+      type: jsPsychSurveyLikert,
+      questions: [
+        // conflicted feeling when making decision, reverse-scored
+        { prompt: "<p>How conflicted did B feel when making their decision?</p>", required: true, labels: certainty_likert, name: "B_cert_conflicted_RS" },
+        // their reservations, reverse-scored so higher ratings mean more certainty
+        { prompt: "<p>How many reservations did B have about their decision?</p>", required: true, labels: certainty_likert, name: "B_cert_reservations_RS" },
+        // quite certain vs reserved, not reverse scored
+        { prompt: "<p>To what extent was B quite certain in their decision, as opposed to considerable reservations)?</p>", required: true, labels: certainty_likert, name: "B_cert_quite_certain" },
+        // far from choosing alternate action, not reverse scored
+        { prompt: "<p>How far was B from choosing an alternate course of action?</p>", required: true, labels: certainty_likert, name: "B_cert_far_from_alternative" },
+      ],
+      randomize_question_order: true,
+      scale_width: 400,
+      data: { block_type: "byst_certainty" }
+    };
+
+    var byst_EI_questions = {
+      type: jsPsychSurveyLikert,
+      questions: [
+        { prompt: "<p>To what extent did B remain calm and emotionally contained?</p>", required: true, labels: impulsivity_likert, name: "b_imp_calm_contained_RS" },
+        { prompt: "<p>To what extent did B become upset and act without thinking?</p>", required: true, labels: impulsivity_likert, name: "b_imp_upset_acted_without_thinking" },
+      ],
+      randomize_question_order: true,
+      scale_width: 400,
+      data: { block_type: "byst_emotional_impulsivity" }
+    };
+
+    var byst_survey_block_2 = [byst_certainty_questions, byst_EI_questions];
+    var byst_randomized_blocks_2 = jsPsych.randomization.shuffle(byst_survey_block_2);
+    byst_randomized_blocks_2.forEach(block => timeline.push(block)); //so for the certainty and emotional impulsivity question blocks, the order is randomized
+
+
+
+
+
+    //demographic questions!
+    var participant_age_entry = {
+      type: jsPsychSurveyText,
+      questions: [{ prompt: "Please enter your age:", name: "participant_age" }],
+      on_finish: function (data) {
+        console.log(data.response)
+        jsPsych.data.addProperties({
+          age: data.response.participant_age
+        });
+      }
+    };
+    timeline.push(participant_age_entry);
+
+    var gender_identity_entry = {
+      type: jsPsychSurveyText,
+      questions: [{ prompt: "Please enter your gender identity (female, male, non-binary).", name: "gender" }],
+      on_finish: function (data) {
+        console.log(data.response)
+        jsPsych.data.addProperties({
+          gender: data.response.gender
+        });
+      }
+    };
+    timeline.push(gender_identity_entry);
+
+    //Insert Moral Attitudes Questionaire (Linda) - extra demographic questions
+    var moral_attitudes_likert = [
+      "Strongly disagree",
+      "Disagree",
+      "Somewhat disagree",
+      "Neutral",
+      "Somewhat agree",
+      "Agree",
+      "Strongly agree"
+    ];
+
+    var moral_attitudes_questionnaire = {
+      type: jsPsychSurveyLikert,
+      preamble: "<p>You are almost finished with the experiment. Please rate the following statements.</p>",
+      questions: [
+
+        {
+          prompt: "<p>I rely on my gut feelings when deciding if something is right or wrong.</p>",
+          required: true,
+          labels: moral_attitudes_likert,
+          name: "ma_gut_feelings"
+        },
+
+        {
+          prompt: "<p>It is important to carefully think through moral decisions before acting.</p>",
+          required: true,
+          labels: moral_attitudes_likert,
+          name: "ma_think_through"
+        },
+
+        {
+          prompt: "<p>The outcome of an action is what matters most when judging whether it is right or wrong.</p>",
+          required: true,
+          labels: moral_attitudes_likert,
+          name: "ma_outcomes_matter"
+        },
+
+        {
+          prompt: "<p>Some actions are just wrong, no matter what the outcome is.</p>",
+          required: true,
+          labels: moral_attitudes_likert,
+          name: "ma_some_actions_wrong"
+        },
+
+        {
+          prompt: "<p>People’s moral decisions say a lot about who they are as a person.</p>",
+          required: true,
+          labels: moral_attitudes_likert,
+          name: "ma_character_reflective"
+        }
+
+      ],
+      randomize_question_order: true,
+      scale_width: 500,
+      data: { block_type: "moral_attitudes" }
+    };
+
+    timeline.push(moral_attitudes_questionnaire);
+
+    var participant_inquiry_entry = {
+      type: jsPsychSurveyText,
+      questions: [{ prompt: "What do you think the experiment was about? Did you run into any technical difficulties?" }],
+      on_finish: function (data) {
+        console.log(data.response)
+        jsPsych.data.addProperties({
+          inquiry: data.response.participant_inquiry
+        });
+      }
+    };
+    timeline.push(participant_inquiry_entry);
+
+    //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+    //this portion of the code ensures that the data gets sent to be stored on OSF
+    const save_data = {
+      type: jsPsychPipe,
+      action: "save",
+      experiment_id: "BM35gLrCjbEH",
+      filename: filename,
+      data_string: () => jsPsych.data.get().csv()
+    };
+    timeline.push(save_data);
+    //PLEASE KEEP FOR ALL FUTURE ITERATIONS
+
+    var debrief = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
 	<h3>Debriefing</h3>
 	<p>Thank you for participating in this study!</p>
 	<p>The purpose of this experiment was to examine how people evaluate moral character and decision-making based on how quickly or slowly they make moral decisions.</p> 
   <p>There are no right or wrong answers. Your responses reflect personal impressions.</p>
   <p>If you have any questions, please contact the researchers! Thank you again for your participation.</p>
 `,
-	choices: ["Finish"]
-};
+      choices: ["Finish"]
+    };
 
-timeline.push(debrief);
+    timeline.push(debrief);
 
 
-  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
-  //this portion of the code ensures that the data gets sent to be stored on OSF
-  const save_data = {
-    type: jsPsychPipe,
-    action: "save",
-    experiment_id: "BM35gLrCjbEH",
-    filename: filename,
-    data_string: () => jsPsych.data.get().csv()
-  };
-  timeline.push(save_data);
-  //PLEASE KEEP FOR ALL FUTURE ITERATIONS
 
-  console.log(timeline);
 
-  jsPsych.run(timeline);
+    console.log(timeline);
+
+    jsPsych.run(timeline);
+  }
+
+  //this calls the asynchronous function that gets the condition assignment
+  //and then runs the experiment
+  async function createExperiment() {
+    const condition = await jsPsychPipe.getCondition("BM35gLrCjbEH");
+    //this will be a number 1-4
+    createTimeline(condition);
+  }
+  createExperiment();
 
 
 </script>
