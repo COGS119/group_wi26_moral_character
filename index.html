@@ -537,7 +537,29 @@ data: { block_type: "moral_attitudes" }
 
 timeline.push(moral_attitudes_questionnaire);
 
+//Insert Question about what they think the expt was about (Arhait)
+var participant_inquiry_entry = {
+	type: jsPsychSurveyText,
+questions: [{ prompt: "What do you think the experiment was about? Did you run into any technical difficulties?" }],
+	on_finish: function (data) {
+	console.log(data.response)
+	jsPsych.data.addProperties ({
+       inquiry: data.response.participant_inquiry
+      });
+    }
+  };
+  timeline.push(participant_inquiry_entry);
 
+
+//Insert debrief (Megan)
+var debrief = {
+	Type: jsPsychHtmlButtonResponse,
+	Stimulus:
+  "<p>Thank you for participating in this study!</p><p>The purpose of this experiment was to examine how people evaluate moral character and decision-making based on how quickly or slowly they make moral decisions to see if it impacts their judgment on the person.</p><p>There are no right or wrong answers. Your responses reflect personal impressions.</p><p>If you have any questions, please contact the researchers! Thank you again for your participation.</p>",
+	Choices: ["Finish"]
+};
+
+timeline.push(debrief);
 
   //PLEASE KEEP FOR ALL FUTURE ITERATIONS
   //this portion of the code ensures that the data gets sent to be stored on OSF
